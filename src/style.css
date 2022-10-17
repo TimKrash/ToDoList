@@ -11,20 +11,46 @@ body {
   font-family: "Shadows Into Light";
 }
 
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  padding-top: 400px;
+  left: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.4);
+}
+.modal .modal-title, .modal .modal-content {
+  width: 85%;
+  padding: 20px;
+  margin: auto;
+  background-color: #fefefe;
+  border: 1px solid #888;
+}
+.modal .modal-title {
+  font-weight: 800;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #888;
+}
+
 .root {
   width: 100vw;
   height: 100vh;
   display: grid;
-  grid-template-areas: "header" "todos" "footer";
-  grid-template-rows: 1fr 3fr 0.2fr;
+  grid-template-areas: "header" "todos";
+  grid-template-rows: 1fr 3fr;
 }
 .root .header {
   grid-area: header;
-  background-color: lightgray;
+  background-color: #FE654F;
 }
 .root .header .header-wrapper {
   height: 100%;
-  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -34,6 +60,7 @@ body {
   font-size: 45px;
 }
 .root .header .header-wrapper .menu {
+  display: block;
   margin-left: auto;
   margin-right: 45px;
 }
@@ -42,49 +69,84 @@ body {
 }
 .root .todos {
   grid-area: todos;
+  background-color: #FEFEFF;
 }
 .root .footer {
   grid-area: footer;
-  background-color: green;
+  background-color: #FE654F;
 }
 
 @media only screen and (min-width: 768px) {
+  .modal .modal-title, .modal .modal-content {
+    width: 50%;
+  }
   .root {
     width: 100vw;
     height: 100vh;
     display: grid;
-    grid-template-areas: "header header" "sidebar todos" "footer footer";
+    grid-template-areas: "header header" "sidebar todos";
     grid-template-columns: 0.7fr 3fr;
-    grid-template-rows: 0.7fr 5fr 0.4fr;
+    grid-template-rows: 0.7fr 5fr;
   }
   .root .header {
     grid-area: header;
-    background-color: lightgray;
+    background-color: #FE654F;
+    width: 100%;
   }
   .root .header .header-wrapper {
     display: flex;
-    align-items: center;
+    justify-content: start;
     height: 100%;
-    width: 100%;
     margin-left: 20px;
   }
   .root .header .header-wrapper .hero {
     font-size: 45px;
   }
+  .root .header .header-wrapper .add-task {
+    margin-left: auto;
+    margin-right: 30px;
+    cursor: pointer;
+  }
   .root .header .header-wrapper .menu {
     display: none;
   }
   .root .sidebar {
-    display: block;
     grid-area: sidebar;
-    background-color: gray;
+    background-color: #D6EFFF;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+  .root .sidebar .entry {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+  .root .sidebar .entry:nth-child(1) {
+    margin-top: 20px;
   }
   .root .todos {
     grid-area: todos;
+    background-color: #FEFEFF;
+  }
+  .root .todos .inbox, .root .todos .today, .root .todos .week, .root .todos .projects {
+    justify-content: center;
+    align-items: start;
+    margin-top: 20px;
+    gap: 10px;
+  }
+  .root .todos .inbox {
+    display: flex;
+  }
+  .root .todos .today, .root .todos .week, .root .todos .projects {
+    display: none;
   }
   .root .footer {
     grid-area: footer;
-    background-color: green;
+    background-color: #FE654F;
   }
 }
 
