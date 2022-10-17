@@ -14,7 +14,7 @@ export default class UI {
     root.append(
       UI.createHeader(),
       UI.createSidebar(),
-      UI.createContent(),
+      UI.createTodos(),
       UI.createFooter()
     );
   }
@@ -29,6 +29,7 @@ export default class UI {
           <i class="fa-solid fa-check-double fa-3x"></i>
         </div>
         <div class="hero">To-Do List</div>
+        <div class="menu"><i class="fa-solid fa-bars fa-3x"></i></div>
       </div>
       `;
     return header;
@@ -42,12 +43,12 @@ export default class UI {
     return sidebar;
   }
 
-  static createContent() {
-    const content = document.createElement('div');
-    content.classList.add('content');
+  static createTodos() {
+    const todos = document.createElement('div');
+    todos.classList.add('todos');
 
-    content.textContent = "Content";
-    return content;
+    todos.textContent = "Todos";
+    return todos;
   }
 
   static createFooter() {
