@@ -1,0 +1,48 @@
+@font-face {
+  font-family: "Shadows Into Light";
+  src: url("./assets/ShadowsIntoLight-Regular.ttf");
+}
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Shadows Into Light";
+}
+
+.root {
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  grid-template-areas: "header header" "sidebar content" "footer footer";
+  grid-template-columns: 0.7fr 3fr;
+  grid-template-rows: 0.7fr 5fr 0.4fr;
+}
+.root .header {
+  grid-area: header;
+  background-color: lightgray;
+}
+.root .header .header-wrapper {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  margin-left: 20px;
+}
+.root .header .header-wrapper .hero {
+  font-size: 45px;
+}
+.root .sidebar {
+  grid-area: sidebar;
+  background-color: gray;
+}
+.root .todos {
+  grid-area: todos;
+}
+.root .footer {
+  grid-area: footer;
+  background-color: green;
+}
+
+/*# sourceMappingURL=style.css.map */
