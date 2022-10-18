@@ -3,6 +3,7 @@ import '@fortawesome/fontawesome-free/js/fontawesome';
 import '@fortawesome/fontawesome-free/js/solid';
 import '@fortawesome/fontawesome-free/js/regular';
 import '@fortawesome/fontawesome-free/js/brands';
+import Task from './Task';
 
 export default class UI {
   static loadPage() {
@@ -19,6 +20,8 @@ export default class UI {
 
     UI.addEventListeners();
     UI.renderContent();
+    // todo remove
+    UI.createNewTask();
   }
 
   static addEventListeners() {
@@ -48,15 +51,60 @@ export default class UI {
       <div class="modal-content">
         <form action="">
           <div class="form-entry">
-            <input type="text" id="task">
             <label for="task">Task</label>
+            <input type="text" id="task" name="task" required>
+          </div>
+          <div class="form-entry">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" cols="30" rows="4"></textarea>
+          </div>
+          <div class="form-entry">
+            <label for="priority">Priority</label>
+            <select id="priority" name="priority">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+          <div class="form-entry">
+            <label for="deadline">Deadline</label>
+            <input type="date" value="2022-10-24" id="deadline" name="deadline" required>
+          </div>
+          <div class="form-entry">
+            <label for="project">Project</label>
+            <select id="project" name="project">
+              <option value="inbox">Inbox</option>
+            </select>
+          </div>
+          <div class="submit-entry">
+            <button>Cancel</button>
+            <button>Submit</button>
           </div>
         </form>
       </div>
     `;
 
-    modal.addEventListener('click', () => modal.style.display = "none");
+    window.addEventListener('click', () => {
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    })
     document.body.append(modal);
+
+    // handle submit
+    const form = modal.querySelector(".modal-content > form");
+    form.addEventListener('submit', UI.handleSubmit);
+  }
+
+  static handleSubmit(event) {
+    event.preventDefault();
+    const form = event.target;
+
+    const formData = new FormData(form);
+    const values = [...formData.values()];
+
+    const task = new Task(...values);
+    console.log(task);
   }
 
   static renderContent(event=null) {

@@ -15,7 +15,7 @@ body {
   display: none;
   position: fixed;
   top: 0;
-  padding-top: 400px;
+  padding-top: 250px;
   left: 0;
   z-index: 1;
   width: 100%;
@@ -25,11 +25,25 @@ body {
   background-color: rgba(0, 0, 0, 0.4);
 }
 .modal .modal-title, .modal .modal-content {
-  width: 85%;
-  padding: 20px;
+  width: min(80%, 320px);
   margin: auto;
+  padding: 20px;
   background-color: #fefefe;
   border: 1px solid #888;
+}
+.modal .modal-content form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+  gap: 30px;
+}
+.modal .modal-content form .form-entry {
+  display: flex;
+  flex-direction: column;
+}
+.modal .modal-content form .submit-entry {
+  align-self: end;
 }
 .modal .modal-title {
   font-weight: 800;
@@ -77,9 +91,6 @@ body {
 }
 
 @media only screen and (min-width: 768px) {
-  .modal .modal-title, .modal .modal-content {
-    width: 50%;
-  }
   .root {
     width: 100vw;
     height: 100vh;
