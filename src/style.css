@@ -139,6 +139,21 @@ body {
   .root .sidebar .entry:nth-child(1) {
     margin-top: 20px;
   }
+  .root .sidebar .current-projects {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .root .sidebar .current-projects .add-new-project {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+  .root .sidebar .show {
+    display: flex;
+  }
   .root .todos {
     grid-area: todos;
     background-color: #FEFEFF;

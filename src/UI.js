@@ -4,6 +4,8 @@ import '@fortawesome/fontawesome-free/js/solid';
 import '@fortawesome/fontawesome-free/js/regular';
 import '@fortawesome/fontawesome-free/js/brands';
 import Task from './Task';
+import Project from './Project';
+import Store from './Store';
 
 export default class UI {
   static loadPage() {
@@ -12,16 +14,31 @@ export default class UI {
 
   static loadFrames() {
     const root = document.querySelector(".root");
+    let header = UI.createHeader();
+    let sidebar = UI.createSidebar();
+    let todos = UI.createTodos();
+
     root.append(
-      UI.createHeader(),
-      UI.createSidebar(),
-      UI.createTodos()
+      header,
+      sidebar,
+      todos
     );
 
     UI.addEventListeners();
+    UI.loadProjects(sidebar);
     UI.renderContent();
     // todo remove
     UI.createNewTask();
+  }
+
+  static loadProjects(sidebar) {
+    const loadedProjects = Store.getProjects();
+
+    if (loadedProjects != null) {
+      const newProject = document.createElement('div');
+      newProject.classList.add('project-item');
+      console.log(loadedProjects);
+    }
   }
 
   static addEventListeners() {
@@ -32,15 +49,24 @@ export default class UI {
 
     const addTask = document.querySelector(".add-task");
     addTask.addEventListener('click', UI.createNewTask);
+
+    window.addEventListener('click', (event) => {
+      const modal = document.querySelector(".modal");
+      if (modal && event.target === modal) {
+        modal.style.display = "none";
+      }
+    });
   }
 
   static createNewTask() {
     let modal = document.querySelector('.modal');
     if (!modal) {
+      console.log("hi");
       modal = document.createElement('div');
       modal.classList.add('modal');
       modal.style.display = "block";
     } else {
+      console.log("hello");
       modal.style.display = "block";
     }
 
@@ -84,19 +110,13 @@ export default class UI {
       </div>
     `;
 
-    window.addEventListener('click', () => {
-      if (event.target === modal) {
-        modal.style.display = "none";
-      }
-    })
     document.body.append(modal);
-
     // handle submit
     const form = modal.querySelector(".modal-content > form");
-    form.addEventListener('submit', UI.handleSubmit);
+    form.addEventListener('submit', UI.handleTaskSubmit);
   }
 
-  static handleSubmit(event) {
+  static handleTaskSubmit(event) {
     event.preventDefault();
     const form = event.target;
 
@@ -104,10 +124,55 @@ export default class UI {
     const values = [...formData.values()];
 
     const task = new Task(...values);
-    console.log(task);
   }
 
-  static renderContent(event=null) {
+  static handleProjectSubmit(event) {
+    event.preventDefault();
+    const form = event.target;
+
+    const formData = new FormData(form);
+    const values = [...formData.values()];
+
+    const project = new Project(...values);
+    Store.addProject(project);
+  }
+
+  static addNewProject() {
+    let modal = document.querySelector('.modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.classList.add('modal');
+      modal.style.display = "block";
+    } else {
+      modal.style.display = "block";
+    }
+
+    modal.innerHTML = `
+      <div class="modal-title">
+        <h4>Add Project</h4>
+      </div>
+      <div class="modal-content">
+        <form action="">
+          <div class="form-entry">
+            <label for="task">Name</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+          <div class="submit-entry">
+            <button>Cancel</button>
+            <button>Submit</button>
+          </div>
+        </form>
+      </div>
+    `;
+
+    document.body.append(modal);
+
+    // handle submit
+    const form = modal.querySelector(".modal-content > form");
+    form.addEventListener('submit', UI.handleProjectSubmit);
+  }
+
+  static renderContent(event=null, tasks=null) {
     let target;
     if (event) {
       target = event.target;
@@ -117,15 +182,49 @@ export default class UI {
     } else {
       target = document.querySelector(".entry#inbox");
     }
+
+    if (target.id === "projects") {
+      const projectEntry = document.querySelector("#projects");
+      const down = projectEntry.classList.toggle("down");
+      if (!down) {
+        const caretUp = document.createElement('i');
+        caretUp.classList.add("fa-solid", "fa-caret-up");
+        const caretDown = document.querySelector(".fa-caret-down");
+        projectEntry.replaceChild(caretUp, caretDown)
+      } else {
+        const caretDown = document.createElement('i');
+        caretDown.classList.add("fa-solid", "fa-caret-down");
+        const caretUp = document.querySelector(".fa-caret-up");
+        projectEntry.replaceChild(caretDown, caretUp);
+      }
+      const showProjects = document.querySelector(".current-projects");
+      showProjects.classList.toggle("show");
+
+      showProjects.addEventListener('click', UI.addNewProject);
+    }
+
     const todo = UI.getTodos();
     const page = target.id;
 
     todo.innerHTML = "";
-    todo.innerHTML = `
-      <div class="${page}" style="display: flex;">
-        <h1>${page.charAt(0).toUpperCase() + page.slice(1)}</h1>
-      </div>
-    `;
+    const projectPage = document.createElement('div');
+    projectPage.classList.add(page);
+    projectPage.style.display = "flex";
+
+    const header = document.createElement('h1');
+    header.textContent = page.charAt(0).toUpperCase() + page.slice(1);
+    const list = document.createElement('ul');
+    if (tasks !== null) {
+      tasks.forEach(task => {
+        const newList = document.createElement('li');
+        newList.textContent = task.name;
+        list.appendChild(newList);
+      });
+    }
+
+    projectPage.appendChild(header);
+    projectPage.appendChild(list);
+    todo.appendChild(projectPage);
   }
 
   static createHeader() {
@@ -162,9 +261,16 @@ export default class UI {
         <i class="fa-solid fa-calendar-week"></i>
         <p>Week</p>
       </div>
-      <div class="entry" id="projects">
+      <div class="entry down" id="projects">
         <i class="fa-solid fa-list-check"></i>
         <p>Projects</p>
+        <i class="fa-solid fa-caret-down"></i>
+      </div>
+      <div class="current-projects">
+        <div class="add-new-project">
+          <i class="fa-solid fa-plus"></i>
+          <p>Add Project</p>
+        </div>
       </div>
     `
 
