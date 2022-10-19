@@ -21,6 +21,8 @@ export default class UI {
     const mainContent = UI.loadContent();
 
     root.append(header, sidebar, mainContent);
+
+    UI.addEventListeners();
   }
 
   static loadHeader() {
@@ -112,6 +114,9 @@ export default class UI {
 
         loadedProjects = Store.getProjects();
       }
+    } else {
+      // for case of event listeners with an event as the parameter
+      project = project.target.id;
     }
 
     const projToRender = loadedProjects[project];
@@ -147,6 +152,124 @@ export default class UI {
   }
 
   // ************ END LOAD SECTION **********
+
+  // *********** EVENT LISTENERS **********
+
+  static addEventListeners() {
+    const sidebarTabs = document.querySelectorAll(".entry");
+      sidebarTabs.forEach(tab => {
+        if (tab.className === "entry down" && tab.id === "projects") {
+          tab.addEventListener('click', UI.toggleProjectNav);
+        } else {
+          tab.addEventListener('click', UI.loadContent);
+        }
+      });
+
+    const addTask = document.querySelector(".add-task");
+    addTask.addEventListener('click', UI.addNewTask);
+
+    const addProject = document.querySelector(".add-new-project");
+    addProject.addEventListener('click', UI.addNewProject);
+
+    window.addEventListener('click', (event) => {
+      const modal = document.querySelector(".modal");
+      if (modal && event.target === modal) {
+        modal.style.display = "none";
+      }
+    });
+  }
+
+  static toggleProjectNav() {
+    const projectEntry = document.querySelector("#projects");
+    const down = projectEntry.classList.toggle("down");
+    if (!down) {
+      const caretUp = document.createElement('i');
+      caretUp.classList.add("fa-solid", "fa-caret-up");
+      const caretDown = document.querySelector(".fa-caret-down");
+      projectEntry.replaceChild(caretUp, caretDown)
+    } else {
+      const caretDown = document.createElement('i');
+      caretDown.classList.add("fa-solid", "fa-caret-down");
+      const caretUp = document.querySelector(".fa-caret-up");
+      projectEntry.replaceChild(caretDown, caretUp);
+    }
+    const showProjects = document.querySelector(".current-projects");
+    showProjects.classList.toggle("show");
+  }
+
+  // *********** END EVENT LISTENERS *********
+
+  // ********** ADD EVENTS **************
+
+  static addNewTask() {
+
+  }
+
+  static addNewProject() {
+    let modal = document.querySelector('.modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.classList.add('modal');
+      modal.style.display = "block";
+    } else {
+      modal.style.display = "block";
+    }
+
+    modal.innerHTML = `
+      <div class="modal-title">
+        <h4>Add Project</h4>
+      </div>
+      <div class="modal-content">
+        <form action="">
+          <div class="form-entry">
+            <label for="task">Name</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+          <div class="submit-entry">
+            <button>Cancel</button>
+            <button>Submit</button>
+          </div>
+        </form>
+      </div>
+    `;
+
+    document.body.append(modal);
+
+    // handle submit
+    const form = modal.querySelector(".modal-content > form");
+    form.addEventListener('submit', () => {
+      event.preventDefault();
+      const form = event.target;
+
+      const formData = new FormData(form);
+      const values = [...formData.values()];
+
+      const project = new Project(...values);
+      Store.addProject(project);
+
+      const projectEntry = document.querySelector(".current-projects");
+      UI.displayNewProject(projectEntry, project)
+      });
+    }
+
+  // ********** END ADD EVENTS ***********
+
+  // ******** DISPLAY EVENTS ************
+
+  static displayNewProject(target, project) {
+    if (target === null || target === undefined) {
+      console.log("undefined target to display new project");
+      return;
+    }
+
+    const newProjectTab = document.createElement('div');
+    newProjectTab.classList.add('project-item');
+    newProjectTab.textContent = project.name;
+
+    target.prepend(newProjectTab);
+  }
+
+  // ******** END DISPLAY EVENTS ********
   /*
   static loadPage() {
     UI.loadFrames();

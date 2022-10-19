@@ -8,8 +8,13 @@ class Store {
     // ensure all project names are lower case
     project.setName(project.name.toLowerCase());
 
+    this.projects = this.getProjects();
+    // for case of initial load of page with no storage
+    if (!this.projects) {
+      this.projects = {};
+    }
+
     this.projects[project.name] = project;
-    console.log(this.projects);
 
     this.localStorage.setItem("projects", JSON.stringify(this.projects));
   }
