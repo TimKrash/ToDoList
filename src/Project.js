@@ -1,9 +1,9 @@
 import Store from './Store';
 
 export default class Project {
-  constructor(name) {
+  constructor(name="inbox", tasks=[]) {
     this.name = name;
-    this.activeTasks = [];
+    this.activeTasks = tasks;
   }
 
   addTask(task) {
@@ -23,5 +23,15 @@ export default class Project {
 
   setName(name) {
     this.name = name;
+  }
+
+  // Serialization/Deserialization methods
+  toJSON() {
+    return JSON.stringify({name: this.name, activeTasks: this.activeTasks});
+  }
+
+  static fromJSON(json) {
+    const project = JSON.parse(json);
+    return new Project(project.name, project.activeTasks);
   }
 }

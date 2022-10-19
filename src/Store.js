@@ -1,31 +1,36 @@
+import Project from './Project';
+import Utils from './Utils';
+
 class Store {
   constructor() {
     this.localStorage = window.localStorage;
-    this.projects = {};
   }
 
   addProject(project) {
-    // ensure all project names are lower case
-    project.setName(project.name.toLowerCase());
-
-    this.projects = this.getProjects();
-    // for case of initial load of page with no storage
-    if (!this.projects) {
-      this.projects = {};
-    }
-
-    this.projects[project.name] = project;
-
-    this.localStorage.setItem("projects", JSON.stringify(this.projects));
+    // serialize
+    project.setName(Utils.editEachWord(project.name, true))
+    const projectSerialized = project.toJSON();
+    this.localStorage.setItem(project.name.toLowerCase(), projectSerialized);
   }
 
-  removeProject(project) {
-    delete this.projects[project.name];
-    this.localStorage.setItem("projects", JSON.stringify(this.projects));
+  getProject(name) {
+    const rawProject = this.localStorage.getItem(name);
+    const deserializedProj = Project.fromJSON(rawProject);
+    return deserializedProj;
   }
 
   getProjects() {
-    return JSON.parse(this.localStorage.getItem("projects"));
+    const projects = new Object();
+    const storageKeys = Object.keys(this.localStorage);
+    let i = storageKeys.length;
+
+    while (i--) {
+      const rawItem = this.localStorage.getItem(storageKeys[i]);
+      const projectItem = Project.fromJSON(rawItem);
+      projects[projectItem.name.toLowerCase()] = projectItem;
+    }
+
+    return projects;
   }
 }
 
