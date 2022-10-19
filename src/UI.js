@@ -8,6 +8,146 @@ import Project from './Project';
 import Store from './Store';
 
 export default class UI {
+  // ************ LOAD SECTION *************
+
+  // Used to load basic header, sidebar and content
+  static loadPage() {
+    // Get active projects from localStorage
+    const loadedProjects = Store.getProjects();
+
+    const root = document.querySelector(".root");
+    const header = UI.loadHeader();
+    const sidebar = UI.loadSidebar(loadedProjects);
+    const mainContent = UI.loadContent();
+
+    root.append(header, sidebar, mainContent);
+  }
+
+  static loadHeader() {
+    const header = document.createElement('div');
+    header.classList.add("header");
+
+    header.innerHTML = `
+      <div class="header-wrapper">
+        <div class="logo">
+          <i class="fa-solid fa-check-double fa-3x"></i>
+        </div>
+        <div class="hero">To-Do List</div>
+        <div class="add-task"><i class="fa-solid fa-plus fa-3x"></i></div>
+        <div class="menu"><i class="fa-solid fa-bars fa-3x"></i></div>
+      </div>
+      `;
+    return header;
+  }
+
+  static loadSidebar(loadedProjects) {
+    const sidebar = document.createElement('div');
+    sidebar.classList.add('sidebar');
+
+    sidebar.innerHTML = `
+      <div class="entry" id="inbox">
+        <i class="fa-solid fa-inbox"></i>
+        <p>Inbox</p>
+      </div>
+      <div class="entry" id="today">
+        <i class="fa-solid fa-calendar-day"></i>
+        <p>Today</p>
+      </div>
+      <div class="entry" id="week">
+        <i class="fa-solid fa-calendar-week"></i>
+        <p>Week</p>
+      </div>
+      <div class="entry down" id="projects">
+        <i class="fa-solid fa-list-check"></i>
+        <p>Projects</p>
+        <i class="fa-solid fa-caret-down"></i>
+      </div>
+    `;
+
+    const currentProjects = document.createElement('div');
+    currentProjects.classList.add("current-projects");
+
+    const addNewProject = document.createElement('div');
+    addNewProject.classList.add('add-new-project');
+
+    // Load in any projects
+    for (const projectName in loadedProjects) {
+      if (projectName === "inbox") {
+        continue;
+      }
+      const project = loadedProjects[projectName];
+      const newProject = document.createElement('div');
+      newProject.classList.add("project-item");
+      newProject.textContent = project.name;
+      currentProjects.append(newProject);
+    }
+
+    const plus = document.createElement('i');
+    plus.classList.add('fa-solid', 'fa-plus');
+
+    const text = document.createElement('p');
+    text.textContent = "Add Project";
+
+    addNewProject.append(plus, text);
+    currentProjects.append(addNewProject);
+    sidebar.append(currentProjects);
+
+    return sidebar;
+  }
+
+  static loadContent(project=null) {
+    // dom element
+    const mainContent = document.createElement('div');
+    mainContent.classList.add('todos');
+
+    let loadedProjects = Store.getProjects();
+
+    if (!project) {
+      project = "inbox";
+
+      if (!loadedProjects || !loadedProjects[project]) {
+        console.log("Project inbox not found, creating default...")
+        const defaultProject = new Project(project);
+        Store.addProject(defaultProject);
+
+        loadedProjects = Store.getProjects();
+      }
+    }
+
+    const projToRender = loadedProjects[project];
+
+    if (projToRender === null || projToRender === undefined) {
+      console.log("Error in rendering project!");
+      return;
+    }
+
+    const tasks = projToRender.activeTasks;
+
+    // todo style better later
+    const projectPage = document.createElement('div');
+    projectPage.classList.add(project);
+    projectPage.style.display = "flex";
+
+    const header = document.createElement('h1');
+    header.textContent = project.charAt(0).toUpperCase() + project.slice(1);
+    const list = document.createElement('ul');
+    if (tasks !== null) {
+      tasks.forEach(task => {
+        const newList = document.createElement('li');
+        newList.textContent = task.name;
+        list.appendChild(newList);
+      });
+    }
+
+    projectPage.appendChild(header);
+    projectPage.appendChild(list);
+    mainContent.appendChild(projectPage);
+
+    return mainContent;
+  }
+
+  // ************ END LOAD SECTION **********
+  /*
   static loadPage() {
     UI.loadFrames();
   }
@@ -25,19 +165,24 @@ export default class UI {
     );
 
     UI.addEventListeners();
-    UI.loadProjects(sidebar);
+    UI.loadProjects();
     UI.renderContent();
     // todo remove
     UI.createNewTask();
   }
 
-  static loadProjects(sidebar) {
+  static loadProjects() {
     const loadedProjects = Store.getProjects();
+    const sidebar = document.querySelector(".sidebar > .current-projects");
 
     if (loadedProjects != null) {
-      const newProject = document.createElement('div');
-      newProject.classList.add('project-item');
-      console.log(loadedProjects);
+      for (const elem in loadedProjects) {
+        const project = loadedProjects[elem];
+        const newProject = document.createElement('div');
+        newProject.classList.add('project-item');
+        newProject.textContent = project.name;
+        sidebar.prepend(newProject);
+      }
     }
   }
 
@@ -61,12 +206,10 @@ export default class UI {
   static createNewTask() {
     let modal = document.querySelector('.modal');
     if (!modal) {
-      console.log("hi");
       modal = document.createElement('div');
       modal.classList.add('modal');
       modal.style.display = "block";
     } else {
-      console.log("hello");
       modal.style.display = "block";
     }
 
@@ -296,4 +439,5 @@ export default class UI {
     footer.textContent = "Footer";
     return footer;
   }
+  */
 }

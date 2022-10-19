@@ -20,4 +20,8 @@ export default class Project {
   getTasks() {
     return this.activeTasks;
   }
+
+  setName(name) {
+    this.name = name;
+  }
 }

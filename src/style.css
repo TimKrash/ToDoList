@@ -140,7 +140,7 @@ body {
     margin-top: 20px;
   }
   .root .sidebar .current-projects {
-    display: none;
+    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;

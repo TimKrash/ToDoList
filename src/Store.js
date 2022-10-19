@@ -1,5 +1,3 @@
-import UI from './UI';
-
 class Store {
   constructor() {
     this.localStorage = window.localStorage;
@@ -7,11 +5,13 @@ class Store {
   }
 
   addProject(project) {
+    // ensure all project names are lower case
+    project.setName(project.name.toLowerCase());
+
     this.projects[project.name] = project;
+    console.log(this.projects);
 
     this.localStorage.setItem("projects", JSON.stringify(this.projects));
-
-    UI.renderContent(event=null, project.getTasks());
   }
 
   removeProject(project) {
