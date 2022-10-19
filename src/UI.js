@@ -99,12 +99,13 @@ export default class UI {
 
   static loadContent(project=null) {
     // dom element
-    const mainContent = document.createElement('div');
-    mainContent.classList.add('todos');
+    let mainContent;
 
     let loadedProjects = Store.getProjects();
 
     if (!project) {
+      mainContent = document.createElement('div');
+      mainContent.classList.add('todos');
       project = "inbox";
 
       if (!loadedProjects || !loadedProjects[project]) {
@@ -116,7 +117,9 @@ export default class UI {
       }
     } else {
       // for case of event listeners with an event as the parameter
-      project = project.target.id;
+      mainContent = document.querySelector(".todos");
+      mainContent.innerHTML = "";
+      project = project.target.textContent.toLowerCase();
     }
 
     const projToRender = loadedProjects[project];
@@ -130,7 +133,7 @@ export default class UI {
 
     // todo style better later
     const projectPage = document.createElement('div');
-    projectPage.classList.add(project);
+    projectPage.classList.add("project-content", project);
     projectPage.style.display = "flex";
 
     const header = document.createElement('h1');
@@ -164,6 +167,11 @@ export default class UI {
           tab.addEventListener('click', UI.loadContent);
         }
       });
+
+    const projectItems = document.querySelectorAll(".project-item");
+    projectItems.forEach(projectItem => {
+      projectItem.addEventListener('click', UI.loadContent);
+    });
 
     const addTask = document.querySelector(".add-task");
     addTask.addEventListener('click', UI.addNewTask);
