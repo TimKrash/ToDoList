@@ -75,7 +75,7 @@ export default class UI {
 
     // Load in any projects
     for (const projectName in loadedProjects) {
-      if (projectName === "inbox") {
+      if (projectName === "Inbox") {
         continue;
       }
       const project = loadedProjects[projectName];
@@ -147,20 +147,29 @@ export default class UI {
 
     const header = document.createElement('h1');
     header.textContent = Utils.editEachWord(project, false);
-    const list = document.createElement('ul');
     if (tasks !== null) {
       tasks.forEach(task => {
-        const newList = document.createElement('li');
-        newList.textContent = task.name;
-        list.appendChild(newList);
+        UI.displayNewTask(projectPage, task);
       });
     }
 
-    projectPage.appendChild(header);
-    projectPage.appendChild(list);
+    projectPage.prepend(header);
     mainContent.appendChild(projectPage);
 
     return mainContent;
+  }
+
+  static loadDropdownProjects(target) {
+    const projects = Store.getProjects();
+    for (const project in projects) {
+      if (project === "Inbox") {
+        continue;
+      }
+      const newOption = document.createElement('option');
+      newOption.value = project;
+      newOption.textContent = project;
+      target.append(newOption);
+     }
   }
 
   // ************ END LOAD SECTION **********
@@ -269,6 +278,11 @@ export default class UI {
     `;
 
     document.body.append(modal);
+
+    // Load in projects into select tab
+    const dropDownElem = document.querySelector('select[id="project"]');
+    UI.loadDropdownProjects(dropDownElem);
+
     // handle submit
     const form = modal.querySelector(".modal-content > form");
     form.addEventListener('submit', () => {
@@ -373,18 +387,27 @@ export default class UI {
       return;
     }
 
-    // If other list item exist, then append. Otherwise create new one
-    const list = target.querySelector('ul');
-    if (!list) {
-      list = document.createElement('ul');
-      const newTask = document.createElement('li');
-      newTask.textContent = task.name;
-      list.appendChild(newTask);
-      target.appendChild(list);
-    } else {
-      const newTask = document.createElement('li');
-      newTask.textContent = task.name;
-      list.appendChild(newTask);
+    if (target instanceof PointerEvent) {
+      target = target.target;
     }
+
+    const taskItem = document.createElement('div');
+    taskItem.classList.add('task-item');
+    const formattedTask = task.name.replaceAll(/\s+/g, '-');
+    taskItem.innerHTML = `
+      <div class="task-input">
+        <input type="checkbox" id="task-item-${formattedTask}", name="task-item-${formattedTask}">
+        <label for="${formattedTask}">${task.name}</label>
+      </div>
+      <div class="task-controllers">
+        <span class="edit"><i class="fa-regular fa-pen-to-square"></i></span>
+        <span class="priority"><i class="fa-solid fa-flag"></i></span>
+        <span class="moveTo"><i class="fa-regular fa-circle-right"></i></span>
+        <span class="delete"><i class="fa-regular fa-trash-can"></i></span>
+      </div>
+    `;
+
+    target.append(taskItem);
   }
+
 }

@@ -4,7 +4,7 @@ import Utils from './Utils';
 class Store {
   constructor() {
     this.localStorage = window.localStorage;
-    this.localStorage.clear();
+    //this.localStorage.clear();
   }
 
   addProject(project) {
@@ -37,7 +37,6 @@ class Store {
       projects[projectItem.name] = projectItem;
     }
 
-    console.log(projects);
     return projects;
   }
 }
