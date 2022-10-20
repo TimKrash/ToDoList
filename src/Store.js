@@ -4,13 +4,14 @@ import Utils from './Utils';
 class Store {
   constructor() {
     this.localStorage = window.localStorage;
+    this.localStorage.clear();
   }
 
   addProject(project) {
     // serialize
-    project.setName(Utils.editEachWord(project.name, true))
+    project.setName(Utils.editEachWord(project.name, false))
     const projectSerialized = project.toJSON();
-    this.localStorage.setItem(project.name.toLowerCase(), projectSerialized);
+    this.localStorage.setItem(project.name, projectSerialized);
   }
 
   updateProject(project, task) {
@@ -33,9 +34,10 @@ class Store {
     while (i--) {
       const rawItem = this.localStorage.getItem(storageKeys[i]);
       const projectItem = Project.fromJSON(rawItem);
-      projects[projectItem.name.toLowerCase()] = projectItem;
+      projects[projectItem.name] = projectItem;
     }
 
+    console.log(projects);
     return projects;
   }
 }

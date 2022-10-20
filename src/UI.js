@@ -81,7 +81,9 @@ export default class UI {
       const project = loadedProjects[projectName];
       const newProject = document.createElement('div');
       newProject.classList.add("project-item");
-      newProject.textContent = Utils.editEachWord(project.name, false);
+      const pElem = document.createElement('p');
+      pElem.textContent = Utils.editEachWord(project.name, false);
+      newProject.append(pElem);
       currentProjects.append(newProject);
     }
 
@@ -107,7 +109,7 @@ export default class UI {
     if (!project) {
       mainContent = document.createElement('div');
       mainContent.classList.add('todos');
-      project = "inbox";
+      project = "Inbox";
 
       if (!loadedProjects || !loadedProjects[project]) {
         console.log("Project inbox not found, creating default...")
@@ -126,7 +128,7 @@ export default class UI {
       // for case of event listeners with an event as the parameter
       mainContent = document.querySelector(".todos");
       mainContent.innerHTML = "";
-      project = currProjectTarget.id.replaceAll('-', ' ').toLowerCase();
+      project = currProjectTarget.querySelector('p').textContent;
     }
 
     const projToRender = loadedProjects[project];
@@ -255,7 +257,7 @@ export default class UI {
           <div class="form-entry">
             <label for="project">Project</label>
             <select id="project" name="project">
-              <option value="inbox">Inbox</option>
+              <option value="Inbox">Inbox</option>
             </select>
           </div>
           <div class="submit-entry">
@@ -354,8 +356,10 @@ export default class UI {
 
     const newProjectTab = document.createElement('div');
     newProjectTab.classList.add('project-item');
-    newProjectTab.id = project.name.replace(/\s+/g, '-');
-    newProjectTab.textContent = Utils.editEachWord(project.name, false);
+    const pElem = document.createElement('p');
+    pElem.textContent = Utils.editEachWord(project.name, false);
+
+    newProjectTab.append(pElem);
 
     target.prepend(newProjectTab);
 
