@@ -117,10 +117,16 @@ export default class UI {
         loadedProjects = Store.getProjects();
       }
     } else {
+      // Propagate up to parent in case child element was clicked (font instead of project-item for example)
+      let currProjectTarget = project.target;
+      while (currProjectTarget !== this) {
+        currProjectTarget = currProjectTarget.parentElement;
+      }
+
       // for case of event listeners with an event as the parameter
       mainContent = document.querySelector(".todos");
       mainContent.innerHTML = "";
-      project = project.target.textContent.toLowerCase();
+      project = currProjectTarget.id.replaceAll('-', ' ').toLowerCase();
     }
 
     const projToRender = loadedProjects[project];
@@ -161,13 +167,13 @@ export default class UI {
 
   static addEventListeners() {
     const sidebarTabs = document.querySelectorAll(".entry");
-      sidebarTabs.forEach(tab => {
-        if (tab.className === "entry down" && tab.id === "projects") {
-          tab.addEventListener('click', UI.toggleProjectNav);
-        } else {
-          tab.addEventListener('click', UI.loadContent);
-        }
-      });
+    sidebarTabs.forEach(tab => {
+      if (tab.className === "entry down" && tab.id === "projects") {
+        tab.addEventListener('click', UI.toggleProjectNav);
+      } else {
+        tab.addEventListener('click', UI.loadContent);
+      }
+    });
 
     const projectItems = document.querySelectorAll(".project-item");
     projectItems.forEach(projectItem => {
@@ -277,6 +283,15 @@ export default class UI {
         console.log("Missing project for task!");
         return;
       }
+
+      Store.updateProject(taskProject, task);
+
+      // If currently displaying said project page, then add task to DOM, otherwise will be displayed when clicked
+      const projClassName = taskProject.name.replace(/\s+/g, '-');
+      const currContentDOM = document.querySelector(`.project-content.${projClassName}`);
+      if (currContentDOM) {
+        UI.displayNewTask(currContentDOM, task);
+      }
     });
   }
 
@@ -339,11 +354,33 @@ export default class UI {
 
     const newProjectTab = document.createElement('div');
     newProjectTab.classList.add('project-item');
+    newProjectTab.id = project.name.replace(/\s+/g, '-');
     newProjectTab.textContent = Utils.editEachWord(project.name, false);
 
     target.prepend(newProjectTab);
 
     // ensure new event listeners get added
     UI.addEventListeners();
+  }
+
+  static displayNewTask(target, task) {
+    if (target === null || target === undefined) {
+      console.log("Undefined target when trying to display new task");
+      return;
+    }
+
+    // If other list item exist, then append. Otherwise create new one
+    const list = target.querySelector('ul');
+    if (!list) {
+      list = document.createElement('ul');
+      const newTask = document.createElement('li');
+      newTask.textContent = task.name;
+      list.appendChild(newTask);
+      target.appendChild(list);
+    } else {
+      const newTask = document.createElement('li');
+      newTask.textContent = task.name;
+      list.appendChild(newTask);
+    }
   }
 }

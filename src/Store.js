@@ -13,6 +13,12 @@ class Store {
     this.localStorage.setItem(project.name.toLowerCase(), projectSerialized);
   }
 
+  updateProject(project, task) {
+    const currProj = this.getProject(project.name);
+    currProj.addTask(task);
+    this.addProject(currProj);
+  }
+
   getProject(name) {
     const rawProject = this.localStorage.getItem(name);
     const deserializedProj = Project.fromJSON(rawProject);
