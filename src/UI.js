@@ -197,6 +197,9 @@ export default class UI {
     const addProject = document.querySelector(".add-new-project");
     addProject.addEventListener('click', UI.addNewProject);
 
+    const taskEditors = document.querySelectorAll(".task-controllers > span");
+    taskEditors.forEach(taskEditor => taskEditor.addEventListener('click', UI.editTask));
+
     window.addEventListener('click', (event) => {
       const modal = document.querySelector(".modal");
       if (modal && event.target === modal) {
@@ -382,6 +385,10 @@ export default class UI {
   }
 
   static displayNewTask(target, task) {
+    if (task.name === null || task.name === undefined) {
+      return;
+    }
+
     if (target === null || target === undefined) {
       console.log("Undefined target when trying to display new task");
       return;
@@ -410,4 +417,27 @@ export default class UI {
     target.append(taskItem);
   }
 
+  // ****** END DISPLAY EVENTS ******
+
+  // ******* EDIT EVENTS ********
+
+  static editTask(event) {
+    let target = event.target;
+    while (target !== this) {
+      target = target.parentElement;
+    }
+
+    switch (target.className) {
+      case "edit":
+        break;
+      case "priority":
+        break;
+      case "moveTo":
+        break;
+      case "delete":
+        break;
+    }
+  }
+
+  // ******* END EDIT EVENTS *******
 }

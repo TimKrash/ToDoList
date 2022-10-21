@@ -4,7 +4,6 @@ import Utils from './Utils';
 class Store {
   constructor() {
     this.localStorage = window.localStorage;
-    //this.localStorage.clear();
   }
 
   addProject(project) {

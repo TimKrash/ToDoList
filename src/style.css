@@ -95,7 +95,7 @@ body {
   height: 100%;
 }
 .root .todos .project-content .task-item {
-  min-width: 500px;
+  width: 300px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -109,6 +109,9 @@ body {
 .root .todos .project-content .task-item .task-controllers {
   display: flex;
   gap: 10px;
+}
+.root .todos .project-content .task-item .task-controllers span {
+  cursor: pointer;
 }
 .root .todos .project-content.inbox {
   display: flex;
@@ -188,6 +191,9 @@ body {
   .root .todos {
     grid-area: todos;
     background-color: #FEFEFF;
+  }
+  .root .todos .project-content .task-item {
+    width: 500px;
   }
   .root .footer {
     grid-area: footer;

@@ -1,9 +1,21 @@
 import Store from './Store';
+import Task from './Task';
 
 export default class Project {
   constructor(name="inbox", tasks=[]) {
     this.name = name;
-    this.activeTasks = tasks;
+
+    this.activeTasks = [];
+    for (let i = 0; i < tasks.length; i++) {
+      const task = tasks[i];
+      this.activeTasks.push(new Task(
+        task.name,
+        task.description,
+        task.priority,
+        task.deadline,
+        task.project
+      ));
+    }
   }
 
   addTask(task) {
