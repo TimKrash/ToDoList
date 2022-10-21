@@ -12,4 +12,8 @@ export default class Utils {
 
     return words;
   }
+
+  static removeDashes(string) {
+    return string.replaceAll('-', ' ');
+  }
 }

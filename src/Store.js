@@ -38,6 +38,20 @@ class Store {
 
     return projects;
   }
+
+  removeTask(project, taskName) {
+    const targetProject = this.getProject(project);
+
+    const activeTasks = targetProject.getTasks();
+    for (let i = 0; i < activeTasks.length; i++) {
+      const currTask = activeTasks[i];
+      if (currTask.name === taskName) {
+        targetProject.removeTask(currTask);
+      }
+    }
+
+    this.addProject(targetProject);
+  }
 }
 
 export default (new Store);

@@ -118,7 +118,8 @@ export default class UI {
 
         loadedProjects = Store.getProjects();
       }
-    } else {
+    } else if (project instanceof PointerEvent){
+      console.log("hello there");
       // Propagate up to parent in case child element was clicked (font instead of project-item for example)
       let currProjectTarget = project.target;
       while (currProjectTarget !== this) {
@@ -129,6 +130,9 @@ export default class UI {
       mainContent = document.querySelector(".todos");
       mainContent.innerHTML = "";
       project = currProjectTarget.querySelector('p').textContent;
+    } else {
+      mainContent = document.querySelector(".todos");
+      mainContent.innerHTML = "";
     }
 
     const projToRender = loadedProjects[project];
@@ -146,15 +150,21 @@ export default class UI {
     projectPage.style.display = "flex";
 
     const header = document.createElement('h1');
+    const taskItems = document.createElement('div');
+    taskItems.classList.add('task-items');
     header.textContent = Utils.editEachWord(project, false);
     if (tasks !== null) {
+      taskItems.innerHTML = "";
       tasks.forEach(task => {
-        UI.displayNewTask(projectPage, task);
+        UI.displayNewTask(taskItems, task);
       });
     }
 
-    projectPage.prepend(header);
+    projectPage.append(header, taskItems);
     mainContent.appendChild(projectPage);
+
+    const controllers = document.querySelectorAll(".task-controllers > span");
+    controllers.forEach(controller => controller.addEventListener('click', UI.editTask))
 
     return mainContent;
   }
@@ -307,11 +317,12 @@ export default class UI {
 
       // If currently displaying said project page, then add task to DOM, otherwise will be displayed when clicked
       const projClassName = taskProject.name.replace(/\s+/g, '-');
-      const currContentDOM = document.querySelector(`.project-content.${projClassName}`);
+      const currContentDOM = document.querySelector(`.project-content.${projClassName} > .task-items`);
       if (currContentDOM) {
         UI.displayNewTask(currContentDOM, task);
       }
     });
+
   }
 
   static addNewProject() {
@@ -415,7 +426,10 @@ export default class UI {
     `;
 
     target.append(taskItem);
-  }
+
+    const controllers = document.querySelectorAll('.task-controllers > span');
+    controllers.forEach(controller => controller.addEventListener('click', UI.editTask))
+ }
 
   // ****** END DISPLAY EVENTS ******
 
@@ -427,6 +441,9 @@ export default class UI {
       target = target.parentElement;
     }
 
+    const projectName = document.querySelector(".project-content > h1").textContent;
+    const taskName = Utils.removeDashes(target.parentElement.previousElementSibling.querySelector("label").htmlFor);
+
     switch (target.className) {
       case "edit":
         break;
@@ -435,8 +452,11 @@ export default class UI {
       case "moveTo":
         break;
       case "delete":
+        Store.removeTask(projectName, taskName);
         break;
     }
+
+    UI.loadContent(projectName);
   }
 
   // ******* END EDIT EVENTS *******

@@ -94,7 +94,13 @@ body {
   gap: 40px;
   height: 100%;
 }
-.root .todos .project-content .task-item {
+.root .todos .project-content .task-items {
+  display: flex;
+  justify-content: start;
+  flex-direction: column;
+  align-items: center;
+}
+.root .todos .project-content .task-items .task-item {
   width: 300px;
   display: flex;
   justify-content: space-between;
@@ -102,15 +108,15 @@ body {
   padding-bottom: 10px;
   border-bottom: 1px solid lightgray;
 }
-.root .todos .project-content .task-item .task-input {
+.root .todos .project-content .task-items .task-item .task-input {
   display: flex;
   gap: 7px;
 }
-.root .todos .project-content .task-item .task-controllers {
+.root .todos .project-content .task-items .task-item .task-controllers {
   display: flex;
   gap: 10px;
 }
-.root .todos .project-content .task-item .task-controllers span {
+.root .todos .project-content .task-items .task-item .task-controllers span {
   cursor: pointer;
 }
 .root .todos .project-content.inbox {
