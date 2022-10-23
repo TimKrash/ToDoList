@@ -33,6 +33,22 @@ export default class Project {
     return this.activeTasks;
   }
 
+  getTask(taskName) {
+    let targetTask;
+    this.activeTasks.forEach(task => {
+      if (task.name === taskName) {
+        targetTask = task;
+        return task;
+      }
+    });
+
+    if (targetTask) {
+      return targetTask;
+    }
+
+    return null;
+  }
+
   setName(name) {
     this.name = name;
   }

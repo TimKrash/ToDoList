@@ -240,7 +240,7 @@ export default class UI {
 
   // ********** ADD EVENTS **************
 
-  static addNewTask() {
+  static addNewTask(task=null) {
     let modal = document.querySelector('.modal');
     if (!modal) {
       modal = document.createElement('div');
@@ -258,28 +258,28 @@ export default class UI {
         <form action="">
           <div class="form-entry">
             <label for="task">Task</label>
-            <input type="text" id="task" name="task" required>
+            <input type="text" id="task" name="task" value=${(task) ? task.name : ""} required>
           </div>
           <div class="form-entry">
             <label for="description">Description</label>
-            <textarea id="description" name="description" cols="30" rows="4"></textarea>
+            <textarea id="description" name="description" cols="30" rows="4"}>${(task) ? task.description : ""}</textarea>
           </div>
           <div class="form-entry">
             <label for="priority">Priority</label>
             <select id="priority" name="priority">
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
+              <option value="low" ${(task && task.priority === "low") && "selected" }>Low</option>
+              <option value="medium" ${(task && task.priority === "medium") && "selected"}>Medium</option>
+              <option value="high" ${(task) && task.priority === "high" && "selected"}>wHigh</option>
             </select>
           </div>
           <div class="form-entry">
             <label for="deadline">Deadline</label>
-            <input type="date" value="2022-10-24" id="deadline" name="deadline" required>
+            <input type="date" value="2022-10-24" id="deadline" name="deadline" value=${(task) ? task.deadline : ""} required>
           </div>
           <div class="form-entry">
             <label for="project">Project</label>
             <select id="project" name="project">
-              <option value="Inbox">Inbox</option>
+              <option value=${(task) ? task.project : "Inbox"}>Inbox</option>
             </select>
           </div>
           <div class="submit-entry">
@@ -305,21 +305,23 @@ export default class UI {
       const formData = new FormData(form);
       const values = [...formData.values()];
 
-      const task = new Task(...values);
-      const taskProject = Store.getProject(task.project);
+      const newTask = new Task(...values);
+      const taskProject = Store.getProject(newTask.project);
 
       if (taskProject === null || taskProject === undefined) {
         console.log("Missing project for task!");
         return;
       }
 
-      Store.updateProject(taskProject, task);
+      Store.updateProject(taskProject, newTask);
 
       // If currently displaying said project page, then add task to DOM, otherwise will be displayed when clicked
       const projClassName = taskProject.name.replace(/\s+/g, '-');
       const currContentDOM = document.querySelector(`.project-content.${projClassName} > .task-items`);
-      if (currContentDOM) {
-        UI.displayNewTask(currContentDOM, task);
+      if (!task && currContentDOM) {
+        UI.displayNewTask(currContentDOM, newTask);
+      } else if (task && currContentDOM) {
+        UI.changeCurrentTask(currContentDOM, task, newTask);
       }
     });
 
@@ -431,6 +433,38 @@ export default class UI {
     controllers.forEach(controller => controller.addEventListener('click', UI.editTask))
  }
 
+  static changeCurrentTask(target, task, newTask) {
+    if (target === null || target === undefined) {
+      console.log("undefined target when trying to edit existing task")
+      return;
+    }
+
+    const taskItem = target.querySelector(`.task-item > .task-input > label[for=${task.name}]`);
+    if (taskItem === null || taskItem === undefined) {
+      console.log("Can't find task item associated with task" + task.name);
+      return;
+    }
+
+    const targetItem = taskItem.parentElement.parentElement;
+
+    const formattedTask = newTask.name.replaceAll(/\s+/g, '-');
+    targetItem.innerHTML = `
+      <div class="task-input">
+        <input type="checkbox" id="task-item-${formattedTask}", name="task-item-${formattedTask}">
+        <label for="${formattedTask}">${newTask.name}</label>
+      </div>
+      <div class="task-controllers">
+        <span class="edit"><i class="fa-regular fa-pen-to-square"></i></span>
+        <span class="priority"><i class="fa-solid fa-flag"></i></span>
+        <span class="moveTo"><i class="fa-regular fa-circle-right"></i></span>
+        <span class="delete"><i class="fa-regular fa-trash-can"></i></span>
+      </div>
+    `;
+
+    const controllers = document.querySelectorAll('.task-controllers > span');
+    controllers.forEach(controller => controller.addEventListener('click', UI.editTask))
+  }
+
   // ****** END DISPLAY EVENTS ******
 
   // ******* EDIT EVENTS ********
@@ -442,10 +476,18 @@ export default class UI {
     }
 
     const projectName = document.querySelector(".project-content > h1").textContent;
+    const project = Store.getProject(projectName);
     const taskName = Utils.removeDashes(target.parentElement.previousElementSibling.querySelector("label").htmlFor);
 
     switch (target.className) {
       case "edit":
+        const task = project.getTask(taskName);
+        if (task) {
+          UI.addNewTask(project.getTask(taskName));
+        } else {
+          console.log("Can't find task associated with project!")
+          return;
+        }
         break;
       case "priority":
         break;
