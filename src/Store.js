@@ -4,6 +4,7 @@ import Utils from './Utils';
 class Store {
   constructor() {
     this.localStorage = window.localStorage;
+    //this.localStorage.clear();
   }
 
   addProject(project) {
@@ -13,9 +14,12 @@ class Store {
     this.localStorage.setItem(project.name, projectSerialized);
   }
 
-  updateProject(project, task) {
+  updateProject(project, newTask, oldTask=null) {
     const currProj = this.getProject(project.name);
-    currProj.addTask(task);
+    if (oldTask) {
+      currProj.removeTask(oldTask.name);
+    }
+    currProj.addTask(newTask)
     this.addProject(currProj);
   }
 

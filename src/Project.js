@@ -22,10 +22,13 @@ export default class Project {
     this.activeTasks.push(task);
   }
 
-  removeTask(task) {
-    const idx = this.activeTasks.indexOf(task);
-    if (idx > -1) {
-      this.activeTasks.splice(idx, 1);
+  removeTask(taskName) {
+    for (let i = 0; i < this.activeTasks.length; i++) {
+      const currTask = this.activeTasks[i];
+      if (currTask.name === taskName) {
+        this.activeTasks.splice(i, 1);
+        return;
+      }
     }
   }
 

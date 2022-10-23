@@ -250,6 +250,8 @@ export default class UI {
       modal.style.display = "block";
     }
 
+    console.log(task.project);
+    const projectName = (task && !(task instanceof PointerEvent)) ? task.project : "Inbox";
     modal.innerHTML = `
       <div class="modal-title">
         <h4>Add Task</h4>
@@ -258,28 +260,28 @@ export default class UI {
         <form action="">
           <div class="form-entry">
             <label for="task">Task</label>
-            <input type="text" id="task" name="task" value=${(task) ? task.name : ""} required>
+            <input type="text" id="task" name="task" value="${(task && !(task instanceof PointerEvent)) ? task.name : ""}" required>
           </div>
           <div class="form-entry">
             <label for="description">Description</label>
-            <textarea id="description" name="description" cols="30" rows="4"}>${(task) ? task.description : ""}</textarea>
+            <textarea id="description" name="description" cols="30" rows="4"}>${(task && !(task instanceof PointerEvent)) ? task.description : ""}</textarea>
           </div>
           <div class="form-entry">
             <label for="priority">Priority</label>
             <select id="priority" name="priority">
-              <option value="low" ${(task && task.priority === "low") && "selected" }>Low</option>
-              <option value="medium" ${(task && task.priority === "medium") && "selected"}>Medium</option>
-              <option value="high" ${(task) && task.priority === "high" && "selected"}>wHigh</option>
+              <option value="low" ${(task && !(task instanceof PointerEvent) && task.priority === "low") && "selected" }>Low</option>
+              <option value="medium" ${(task && !(task instanceof PointerEvent) && task.priority === "medium") && "selected"}>Medium</option>
+              <option value="high" ${(task && !(task instanceof PointerEvent)) && task.priority === "high" && "selected"}>wHigh</option>
             </select>
           </div>
           <div class="form-entry">
             <label for="deadline">Deadline</label>
-            <input type="date" value="2022-10-24" id="deadline" name="deadline" value=${(task) ? task.deadline : ""} required>
+            <input type="date" value="2022-10-24" id="deadline" name="deadline" value=${(task && !(task instanceof PointerEvent)) && task.deadline} required>
           </div>
           <div class="form-entry">
             <label for="project">Project</label>
             <select id="project" name="project">
-              <option value=${(task) ? task.project : "Inbox"}>Inbox</option>
+              <option value="${projectName}">${projectName}</option>
             </select>
           </div>
           <div class="submit-entry">
@@ -313,14 +315,18 @@ export default class UI {
         return;
       }
 
-      Store.updateProject(taskProject, newTask);
+      if (task && !(task instanceof PointerEvent)) {
+        Store.updateProject(taskProject, newTask, task);
+      } else {
+        Store.updateProject(taskProject, newTask);
+      }
 
       // If currently displaying said project page, then add task to DOM, otherwise will be displayed when clicked
       const projClassName = taskProject.name.replace(/\s+/g, '-');
       const currContentDOM = document.querySelector(`.project-content.${projClassName} > .task-items`);
-      if (!task && currContentDOM) {
+      if ((!task || task instanceof PointerEvent) && currContentDOM) {
         UI.displayNewTask(currContentDOM, newTask);
-      } else if (task && currContentDOM) {
+      } else if (task && !(task instanceof PointerEvent) && currContentDOM) {
         UI.changeCurrentTask(currContentDOM, task, newTask);
       }
     });
@@ -421,8 +427,6 @@ export default class UI {
       </div>
       <div class="task-controllers">
         <span class="edit"><i class="fa-regular fa-pen-to-square"></i></span>
-        <span class="priority"><i class="fa-solid fa-flag"></i></span>
-        <span class="moveTo"><i class="fa-regular fa-circle-right"></i></span>
         <span class="delete"><i class="fa-regular fa-trash-can"></i></span>
       </div>
     `;
@@ -439,7 +443,9 @@ export default class UI {
       return;
     }
 
-    const taskItem = target.querySelector(`.task-item > .task-input > label[for=${task.name}]`);
+    const formattedOldTask = task.name.replaceAll(/\s+/g, '-');
+
+    const taskItem = target.querySelector(`.task-item > .task-input > label[for=${formattedOldTask}]`);
     if (taskItem === null || taskItem === undefined) {
       console.log("Can't find task item associated with task" + task.name);
       return;
@@ -455,8 +461,6 @@ export default class UI {
       </div>
       <div class="task-controllers">
         <span class="edit"><i class="fa-regular fa-pen-to-square"></i></span>
-        <span class="priority"><i class="fa-solid fa-flag"></i></span>
-        <span class="moveTo"><i class="fa-regular fa-circle-right"></i></span>
         <span class="delete"><i class="fa-regular fa-trash-can"></i></span>
       </div>
     `;
