@@ -50,7 +50,7 @@ class Store {
     for (let i = 0; i < activeTasks.length; i++) {
       const currTask = activeTasks[i];
       if (currTask.name === taskName) {
-        targetProject.removeTask(currTask);
+        targetProject.removeTask(currTask.name);
       }
     }
 
