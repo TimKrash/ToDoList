@@ -7,6 +7,7 @@ import Task from './Task';
 import Project from './Project';
 import Store from './Store';
 import Utils from './Utils';
+import { add, isEqual, isBefore, isAfter } from 'date-fns';
 
 export default class UI {
   // ************ LOAD SECTION *************
@@ -119,7 +120,6 @@ export default class UI {
         loadedProjects = Store.getProjects();
       }
     } else if (project instanceof PointerEvent){
-      console.log("hello there");
       // Propagate up to parent in case child element was clicked (font instead of project-item for example)
       let currProjectTarget = project.target;
       while (currProjectTarget !== this) {
@@ -169,6 +169,107 @@ export default class UI {
     return mainContent;
   }
 
+  static loadWeek() {
+    let mainContent = document.querySelector(".todos");
+    mainContent.innerHTML = "";
+
+    let tasks;
+    const projects = Store.getProjects();
+    for (const project in projects) {
+      const targetProject = projects[project];
+      if (tasks !== undefined) {
+        tasks = tasks.concat(targetProject.getTasks());
+      } else {
+        tasks = targetProject.getTasks();
+      }
+    }
+
+    const weekPage = document.createElement('div');
+    weekPage.classList.add("project-content", "week");
+    weekPage.style.display = "flex";
+
+    const weekHeader = document.createElement("h1");
+    weekHeader.textContent = "This Week";
+
+    weekPage.append(weekHeader);
+
+    const taskItems = document.createElement('div');
+    taskItems.classList.add("task-items");
+    tasks.forEach(task => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const weekAfterToday = add(today, {
+        years: 0,
+        months: 0,
+        weeks: 1,
+        days: 0,
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+      });
+
+      const taskDeadline = new Date(Date.parse(task.deadline));
+      taskDeadline.setHours(0, 0, 0, 0);
+
+      if (isBefore(taskDeadline, weekAfterToday) &&
+      (isAfter(taskDeadline, today) || isEqual(taskDeadline, today))) {
+        UI.displayNewTask(taskItems, task);
+      }
+
+    });
+
+    weekPage.append(taskItems);
+    mainContent.append(weekPage);
+
+    const controllers = document.querySelectorAll('.task-controllers > span');
+    controllers.forEach(controller => controller.addEventListener('click', UI.editTask))
+  }
+
+  static loadToday() {
+    let mainContent = document.querySelector(".todos");
+    mainContent.innerHTML = "";
+
+    let tasks;
+    const projects = Store.getProjects();
+    for (const project in projects) {
+      const targetProject = projects[project];
+      if (tasks !== undefined) {
+        tasks = tasks.concat(targetProject.getTasks());
+      } else {
+        tasks = targetProject.getTasks();
+      }
+    }
+
+    const todayPage = document.createElement('div');
+    todayPage.classList.add("project-content", "today");
+    todayPage.style.display = "flex";
+
+    const todayHeader = document.createElement("h1");
+    todayHeader.textContent = "Today";
+
+    todayPage.append(todayHeader);
+
+    const taskItems = document.createElement('div');
+    taskItems.classList.add("task-items");
+    tasks.forEach(task => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const taskDeadline = new Date(Date.parse(task.deadline));
+      taskDeadline.setHours(0, 0, 0, 0);
+
+      if (isEqual(today, taskDeadline)) {
+        UI.displayNewTask(taskItems, task);
+      }
+    })
+
+    todayPage.append(taskItems);
+    mainContent.append(todayPage);
+
+    const controllers = document.querySelectorAll('.task-controllers > span');
+    controllers.forEach(controller => controller.addEventListener('click', UI.editTask))
+  }
+
   static loadDropdownProjects(target) {
     const projects = Store.getProjects();
     for (const project in projects) {
@@ -191,6 +292,10 @@ export default class UI {
     sidebarTabs.forEach(tab => {
       if (tab.className === "entry down" && tab.id === "projects") {
         tab.addEventListener('click', UI.toggleProjectNav);
+      } else if (tab.id == "today") {
+        tab.addEventListener('click', UI.loadToday);
+      } else if (tab.id == "week") {
+        tab.addEventListener('click', UI.loadWeek);
       } else {
         tab.addEventListener('click', UI.loadContent);
       }
@@ -251,7 +356,8 @@ export default class UI {
     }
 
     console.log(task.project);
-    const projectName = (task && !(task instanceof PointerEvent)) ? task.project : "Inbox";
+    const projectContent = document.querySelector(".project-content > h1");
+    const projectName = (task && !(task instanceof PointerEvent)) ? task.project : projectContent.textContent;
     modal.innerHTML = `
       <div class="modal-title">
         <h4>Add Task</h4>
@@ -480,8 +586,23 @@ export default class UI {
     }
 
     const projectName = document.querySelector(".project-content > h1").textContent;
-    const project = Store.getProject(projectName);
     const taskName = Utils.removeDashes(target.parentElement.previousElementSibling.querySelector("label").htmlFor);
+    let project;
+    if (projectName === "Today" || projectName === "This Week") {
+      const projects = Store.getProjects();
+      for (const currProject in projects) {
+        const targetProj = projects[currProject];
+        const targetTasks = targetProj.getTasks();
+
+        targetTasks.forEach(task => {
+          if (task.name === taskName) {
+            project = targetProj;
+          }
+        })
+      }
+    } else {
+      project = Store.getProject(projectName);
+    }
 
     switch (target.className) {
       case "edit":
@@ -493,16 +614,12 @@ export default class UI {
           return;
         }
         break;
-      case "priority":
-        break;
-      case "moveTo":
-        break;
       case "delete":
-        Store.removeTask(projectName, taskName);
+        Store.removeTask(project.name, taskName);
         break;
     }
 
-    UI.loadContent(projectName);
+    UI.loadContent(project.name);
   }
 
   // ******* END EDIT EVENTS *******
