@@ -43,6 +43,17 @@ class Store {
     return projects;
   }
 
+  removeProject(projectName) {
+    const project = this.getProject(projectName);
+    if (!project) {
+      console.log("error removing project from store...doesn't exist");
+      return;
+    }
+
+    project.removeTasks();
+    this.localStorage.removeItem(project.name);
+  }
+
   removeTask(project, taskName) {
     const targetProject = this.getProject(project);
 

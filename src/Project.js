@@ -22,6 +22,10 @@ export default class Project {
     this.activeTasks.push(task);
   }
 
+  removeTasks() {
+    this.activeTasks.length = 0;
+  }
+
   removeTask(taskName) {
     for (let i = 0; i < this.activeTasks.length; i++) {
       const currTask = this.activeTasks[i];

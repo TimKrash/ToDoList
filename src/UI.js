@@ -83,8 +83,17 @@ export default class UI {
       const newProject = document.createElement('div');
       newProject.classList.add("project-item");
       const pElem = document.createElement('p');
+
+      // create x to delete project
+      const deleteBtnDiv = document.createElement('div');
+      deleteBtnDiv.classList.add("deleteBtn");
+
+      const deleteBtn = document.createElement('i');
+      deleteBtn.classList.add("fa-solid", "fa-xmark");
+      deleteBtnDiv.append(deleteBtn);
+
       pElem.textContent = Utils.editEachWord(project.name, false);
-      newProject.append(pElem);
+      newProject.append(pElem, deleteBtnDiv);
       currentProjects.append(newProject);
     }
 
@@ -129,7 +138,11 @@ export default class UI {
       // for case of event listeners with an event as the parameter
       mainContent = document.querySelector(".todos");
       mainContent.innerHTML = "";
-      project = currProjectTarget.querySelector('p').textContent;
+      if (currProjectTarget.id === "inbox") {
+        project = currProjectTarget.querySelector('p').textContent;
+      } else {
+        project = currProjectTarget.textContent;
+      }
     } else {
       mainContent = document.querySelector(".todos");
       mainContent.innerHTML = "";
@@ -301,10 +314,13 @@ export default class UI {
       }
     });
 
-    const projectItems = document.querySelectorAll(".project-item");
+    const projectItems = document.querySelectorAll(".project-item > p");
     projectItems.forEach(projectItem => {
       projectItem.addEventListener('click', UI.loadContent);
     });
+
+    const deletes = document.querySelectorAll(".project-item > .deleteBtn");
+    deletes.forEach(deleteBtn => deleteBtn.addEventListener('click', UI.removeProject));
 
     const addTask = document.querySelector(".add-task");
     addTask.addEventListener('click', UI.addNewTask);
@@ -623,4 +639,25 @@ export default class UI {
   }
 
   // ******* END EDIT EVENTS *******
+
+  static removeProject(event) {
+    let target = event.target;
+    while (target !== this) {
+      target = target.parentElement;
+    }
+    const projectName = target.previousElementSibling.textContent;
+
+    if (!projectName) {
+      console.log("Error finding project while trying to delete");
+      return;
+    }
+
+    Store.removeProject(projectName);
+
+    // Check what page you're on to reload properly
+    const currContent = document.querySelector(".project-content > h1").textContent;
+    if (currContent === projectName) {
+      UI.loadContent();
+    }
+  }
 }
