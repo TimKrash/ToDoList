@@ -7,7 +7,7 @@ import Task from './Task';
 import Project from './Project';
 import Store from './Store';
 import Utils from './Utils';
-import { add, isEqual, isBefore, isAfter } from 'date-fns';
+import { add, isEqual, isBefore, isAfter, formatISO } from 'date-fns';
 
 export default class UI {
   // ************ LOAD SECTION *************
@@ -45,8 +45,13 @@ export default class UI {
   }
 
   static loadSidebar(loadedProjects) {
-    const sidebar = document.createElement('div');
-    sidebar.classList.add('sidebar');
+    let sidebar = document.querySelector('div.sidebar');
+    if (sidebar) {
+      sidebar.innerHTML = "";
+    } else {
+      sidebar = document.createElement('div');
+      sidebar.classList.add('sidebar');
+    }
 
     sidebar.innerHTML = `
       <div class="entry" id="inbox">
@@ -398,7 +403,7 @@ export default class UI {
           </div>
           <div class="form-entry">
             <label for="deadline">Deadline</label>
-            <input type="date" value="2022-10-24" id="deadline" name="deadline" value=${(task && !(task instanceof PointerEvent)) && task.deadline} required>
+            <input type="date" id="deadline" name="deadline" value="${(task && !(task instanceof PointerEvent)) ? task.deadline : formatISO(new Date(), { representation: 'date' })}" required>
           </div>
           <div class="form-entry">
             <label for="project">Project</label>
@@ -515,9 +520,16 @@ export default class UI {
     const newProjectTab = document.createElement('div');
     newProjectTab.classList.add('project-item');
     const pElem = document.createElement('p');
+    const deleteBtnDiv = document.createElement('div');
+    deleteBtnDiv.classList.add("deleteBtn");
+
+    const deleteBtn = document.createElement('i');
+    deleteBtn.classList.add("fa-solid", "fa-xmark");
+    deleteBtnDiv.append(deleteBtn);
+
     pElem.textContent = Utils.editEachWord(project.name, false);
 
-    newProjectTab.append(pElem);
+    newProjectTab.append(pElem, deleteBtnDiv);
 
     target.prepend(newProjectTab);
 
@@ -659,5 +671,11 @@ export default class UI {
     if (currContent === projectName) {
       UI.loadContent();
     }
+
+    const projects = Store.getProjects();
+    const rootElem = document.querySelector(".root");
+    const sidebar = UI.loadSidebar(projects);
+    rootElem.append(sidebar);
+    UI.addEventListeners();
   }
 }
